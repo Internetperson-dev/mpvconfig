@@ -1,7 +1,7 @@
 --[[
     mpvcut.lua by zydezu
 	(https://github.com/zydezu/mpvconfig/blob/main/scripts/mpvcut.lua)
-	
+
 	* Based on https://github.com/familyfriendlymikey/mpv-cut/blob/main/main.lua
 
     Clip, compress and re-encode selected clips
@@ -215,6 +215,7 @@ ACTIONS.ENCODE = function(d)
 		"-t", d.duration,
 		"-i", d.inpath,
 		"-map", "0:v:0",
+		"-map_chapters", "-1",
         "-map", "0:a:" .. ff_audio_index .. "?",
 	}
 
@@ -371,6 +372,7 @@ ACTIONS.COMPRESS = function(d)
 		"-t", d.duration,
 		"-i", d.inpath,
 		"-map", "0:v:0",
+		"-map_chapters", "-1",
         "-map", "0:a:" .. ff_audio_index .. "?",
 	}
 
@@ -446,6 +448,7 @@ ACTIONS.COPY = function(d)
         "-t", d.duration,
         "-c", "copy",                 -- fast copy
         "-map", "0:v",                -- video only
+        "-map_chapters", "-1",
         "-map", "0:a?",               -- audio if exists
         "-dn",                        -- drop data streams
         "-avoid_negative_ts", "make_zero",
@@ -457,8 +460,8 @@ ACTIONS.COPY = function(d)
         name = "subprocess",
         args = args,
         playback_only = false,
-    }, function() 
-        print("Saved clip!") 
+    }, function()
+        print("Saved clip!")
     end)
 end
 

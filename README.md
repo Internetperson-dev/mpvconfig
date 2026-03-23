@@ -52,6 +52,10 @@ Please note that many of these scripts have been slightly modified from their in
 
 ## Updates
 
+### 2026-03-23
+
+- FIX: add -map_chatpers -1 to mpvcut.lua
+
 ### 2026-03-04
 
 - FIX: fix weird date formats in `modernx.lua`
