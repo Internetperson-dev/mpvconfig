@@ -52,6 +52,15 @@ Please note that many of these scripts have been slightly modified from their in
 
 ## Updates
 
+### 2026-04-12
+
+- FIX: improve audio track naming in `modernx.lua`
+
+### 2026-04-07
+
+- FIX: add screen=1 to mpv.conf, which fixes autofit sizing calculations
+using the wrong monitor on some linux systems
+
 ### 2026-03-23
 
 - FIX: add -map_chatpers -1 to mpvcut.lua
