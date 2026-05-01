@@ -1,0 +1,56 @@
+name: Sync fork with upstream (keep local changes)
+
+on:
+  schedule:
+    # 04:00 UTC every day – pick any quiet hour
+    - cron: '0 4 * * *'
+  workflow_dispatch:   # manual button in the GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # so we can force-push
+
+    steps:
+      - name: Checkout fork (full history)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0          # need all refs for rebase
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}.git
+          # ^^^ Replace with the real upstream owner/name if different
+          git fetch upstream
+
+      - name: Configure Git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Replay upstream commits on top of fork
+        run: |
+          # Start from the fresh upstream state
+          git checkout -B sync-tmp upstream/${{ github.event.repository.default_branch }}
+
+          # Now transplant every **local** commit that is not yet upstream
+          # Git does the right thing: commits that touch files you modified
+          # will stop with a conflict; the rest apply cleanly.
+          git rebase --onto sync-tmp upstream/sync-tmp ${{ github.event.repository.default_branch }} || true
+
+          # If there are conflicts we simply skip the offending patches
+          # (they are already in your branch anyway).
+          while [ -f .git/rebase-merge/done ]; do
+            if [ -f .git/rebase-merge/msg ]; then
+              # conflict – skip this patch
+              git rebase --skip
+            else
+              break
+            fi
+          done
+
+          # Push the result back to your fork
+          git push origin HEAD:${{ github.event.repository.default_branch }} --force-with-lease
